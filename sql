@@ -1,8 +1,3 @@
--- You're wandering through the wilderness of someone else's code, and you stumble across
--- the following queries that use subqueries. You think they'd be better as CTE's
--- Go ahead and re-write the queries to use CTE's
-
--- -- EXAMPLE CTE:
 --Returns the customer ID’s of ALL customers who have spent more money than $100 in their life.
 
 WITH customer_totals AS (
@@ -19,17 +14,26 @@ WHERE total > 100;
 
 --YOUR TURN:
 -- Returns the average of the amount of stock each store has in their inventory. 
-SELECT AVG(stock)
-FROM (SELECT COUNT(inventory_id) as stock
-	  FROM inventory
-	  GROUP BY store_id) as store_stock;
+
+WITH store_stock AS (
+	SELECT COUNT(inventory_id) as stock
+	FROM inventory
+	GROUP BY store_id
+)
+
+SELECT ROUND(AVG(stock),2)
+FROM store_stock
 	  
 -- Returns the average customer lifetime spending, for each staff member.
 -- HINT: you can work off the example
-SELECT staff_id, AVG(total)
-FROM (SELECT staff_id, SUM(amount) as total
-	  FROM payment 
-	  GROUP BY customer_id, staff_id) as customer_totals
+
+WITH customer_totals AS (
+	SELECT staff_id, SUM(amount) as total
+	FROM payment 
+	GROUP BY customer_id, staff_id
+)
+SELECT staff_id, ROUND(AVG(total),2)
+FROM customer_totals
 GROUP BY staff_id;
 
 -- Returns the average rental rate for each genre of film.
